@@ -1,5 +1,6 @@
 use crate::elements::RecoveryTimestampIE;
 use crate::headers::Header;
+
 #[derive(Debug, Default)]
 pub struct HeartbeatRequest {
     pub header: Header,
@@ -15,13 +16,13 @@ impl HeartbeatRequest {
         };
 
         // m.header.set_length()
-        m.header.lenght += 8;
+        m.header.lenght += 4 + m.recovery_time_stamp.ie_lenght;
         m
     }
 
-    pub fn to_bytes(&self) -> Vec<u8> {
+    pub fn to_bytes(mut self) -> Vec<u8> {
         let mut bytes: Vec<u8> = vec![];
-        bytes.extend(self.header.to_bytes().iter());
+        bytes.extend(&mut self.header.to_bytes().iter());
         bytes.extend(self.recovery_time_stamp.to_bytes().iter());
         bytes
     }
