@@ -12,7 +12,7 @@ pub struct Header {
 impl Header {
     pub fn New(t: u8, seid: Option<u32>, pri: Option<u8>) -> Header {
         let mut m: Header = Header {
-            flag: 32,
+            flag: 35,
             msg_type: t,
             lenght: 0,
             seid: seid,

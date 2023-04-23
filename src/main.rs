@@ -2,13 +2,14 @@ mod message;
 use message::elements::*;
 use message::heartbeat::HeartbeatRequest;
 use message::AssociationSetup::AssociationSetup;
+use message::SessionEstablishment::SessionEstablishment;
 use message::*;
 fn main() {
     println!("Hello, world!");
     // Create a HeartbeatRequest message
 
     // Create a HeartbeatRequest message
-    let heartbeat_request: AssociationSetup = AssociationSetup::new();
+    let heartbeat_request: SessionEstablishment = SessionEstablishment::new();
 
     // Create a UDP socket
     let socket = std::net::UdpSocket::bind("127.0.0.1:34254").expect("Could not bind UDP socket");

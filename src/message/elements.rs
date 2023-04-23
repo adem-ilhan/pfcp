@@ -200,3 +200,81 @@ pub struct SourceInterface {
     pub ie_lenght: u16,
     pub interface: u8,
 }
+
+impl SourceInterface {
+    pub fn new(interface: u8) -> SourceInterface {
+        let mut source: SourceInterface = SourceInterface {
+            ie_type: 20,
+            ie_lenght: 1,
+            interface: interface,
+        };
+        source
+    }
+
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.push(self.interface);
+        res
+    }
+}
+
+//PDI
+pub struct PDI {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub source: SourceInterface,
+    //rest of ies
+}
+
+impl PDI {
+    pub fn new(sourceinterface: u8) -> PDI {
+        let mut pdi: PDI = PDI {
+            ie_type: 2,
+            ie_lenght: 5,
+            source: SourceInterface::new(sourceinterface),
+        };
+        pdi
+    }
+
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.source.to_bytes());
+        res
+    }
+}
+
+pub struct CreatePDR {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub recedence: Precedence,
+    pub pdrid: PdrId,
+    pub pdi: PDI,
+}
+
+impl CreatePDR {
+    pub fn new() -> CreatePDR {
+        let mut pdr: CreatePDR = CreatePDR {
+            ie_type: 1,
+            ie_lenght: 0,
+            recedence: Precedence::new(1),
+            pdrid: PdrId::new(1),
+            pdi: PDI::new(1),
+        };
+        pdr.ie_lenght += 12 + pdr.recedence.ie_lenght + pdr.pdrid.ie_lenght + pdr.pdi.ie_lenght;
+        pdr
+    }
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.pdrid.to_bytes());
+        res.append(&mut self.recedence.to_bytes());
+        res.append(&mut self.pdi.to_bytes());
+        res
+    }
+}
