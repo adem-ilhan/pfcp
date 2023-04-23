@@ -18,12 +18,14 @@ impl SessionEstablishment {
             fseid: F_Seid::new(),
             pdr: CreatePDR::new(),
         };
+        message.header.flag = 33;
         message.header.lenght += (message.nodeid.ie_lenght
             + 4
             + message.fseid.ie_lenght
             + 4
             + message.pdr.ie_lenght
-            + 4);
+            + 4
+            + 8);
         message
     }
     pub fn to_bytes(mut self) -> Vec<u8> {

@@ -108,7 +108,7 @@ impl F_Seid {
     pub fn new() -> F_Seid {
         let mut fseid: F_Seid = F_Seid {
             ie_type: 57,
-            ie_lenght: 8,
+            ie_lenght: 13,
             seid: 1234567,
             flags: 2,
             ipv4: Some(vec![11, 0, 0, 1]),
@@ -122,14 +122,11 @@ impl F_Seid {
         res.append(&mut self.ie_type.to_be_bytes().to_vec());
         res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
         res.push(self.flags);
-
-        if let Some(ipv4) = &mut self.ipv4 {
-            res.append(ipv4);
-        }
-
-        unsafe {
-            if let Some(ipv6) = &mut self.ipv6 {
-                res.append(ipv6.as_mut_vec()); //hata
+        res.append(&mut self.seid.to_be_bytes().to_vec());
+        if self.ipv4.is_some() {
+            match self.ipv4 {
+                Some(mut X) => res.append(&mut X),
+                _ => print!("noth"),
             }
         }
 
@@ -235,6 +232,7 @@ impl PDI {
             ie_lenght: 5,
             source: SourceInterface::new(sourceinterface),
         };
+
         pdi
     }
 
@@ -265,6 +263,9 @@ impl CreatePDR {
             pdi: PDI::new(1),
         };
         pdr.ie_lenght += 12 + pdr.recedence.ie_lenght + pdr.pdrid.ie_lenght + pdr.pdi.ie_lenght;
+        println!("lenght pdi;{}", pdr.pdi.ie_lenght);
+
+        println!("lenght create pdr;{}", pdr.ie_lenght);
         pdr
     }
     pub fn to_bytes(mut self) -> Vec<u8> {
