@@ -217,11 +217,70 @@ impl SourceInterface {
     }
 }
 
+//f_teid 21
+pub struct F_Teid {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub flags: u8,
+    pub teid: Option<u32>,
+    pub ipv4: Option<Vec<u8>>,
+    pub ipv6: Option<String>,
+    pub choose: Option<u8>,
+}
+
+impl F_Teid {
+    pub fn new(flags: u8) -> F_Teid {
+        let mut f_teid: F_Teid = F_Teid {
+            ie_type: 21,
+            ie_lenght: 0,
+            flags: flags,
+            teid: None,
+            ipv4: None, //Some(vec![127, 0, 0, 1]),
+            ipv6: None,
+            choose: None,
+        };
+        f_teid.ie_lenght = 1;
+        if f_teid.teid.is_some() {
+            f_teid.ie_lenght += 4;
+        }
+        if f_teid.ipv4.is_some() {
+            f_teid.ie_lenght += 4;
+        }
+        if f_teid.ipv6.is_some() {
+            f_teid.ie_lenght += 16;
+        }
+        if f_teid.choose.is_some() {
+            f_teid.ie_lenght += 1;
+        }
+        f_teid
+    }
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.push(self.flags);
+        if self.teid.is_some() {
+            res.append(&mut self.teid.unwrap().to_be_bytes().to_vec());
+        };
+        if self.ipv4.is_some() {
+            res.append(&mut self.ipv4.unwrap());
+        }
+        if self.ipv6.is_some() {
+            res.append(&mut self.ipv6.unwrap().into_bytes().to_vec());
+        }
+        if self.choose.is_some() {
+            res.push(self.choose.unwrap());
+        };
+
+        res
+    }
+}
 //PDI
 pub struct PDI {
     pub ie_type: u16,
     pub ie_lenght: u16,
     pub source: SourceInterface,
+    pub f_teid: F_Teid,
     //rest of ies
 }
 
@@ -229,8 +288,9 @@ impl PDI {
     pub fn new(sourceinterface: u8) -> PDI {
         let mut pdi: PDI = PDI {
             ie_type: 2,
-            ie_lenght: 5,
+            ie_lenght: 10,
             source: SourceInterface::new(sourceinterface),
+            f_teid: F_Teid::new(4),
         };
 
         pdi
@@ -241,6 +301,7 @@ impl PDI {
         res.append(&mut self.ie_type.to_be_bytes().to_vec());
         res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
         res.append(&mut self.source.to_bytes());
+        res.append(&mut self.f_teid.to_bytes());
         res
     }
 }
