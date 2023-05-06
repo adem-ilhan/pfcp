@@ -38,7 +38,6 @@ impl Header {
         bytes.push(self.flag);
         bytes.push(self.msg_type);
         bytes.extend_from_slice(&self.lenght.to_be_bytes());
-        println!("{:?}", self.lenght.to_be_bytes());
         //
         if let Some(seid) = self.seid {
             bytes.extend_from_slice(&seid.to_be_bytes());

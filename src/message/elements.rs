@@ -52,7 +52,7 @@ impl NodeID {
             NODE_ID_TYPE_IPV4 => node.ie_lenght += 4,
             NODE_ID_TYPE_IPV6 => node.ie_lenght += 16,
             NODE_ID_TYPE_FQDN => node.ie_lenght += node.node_value.len() as u16,
-            _ => println!("Ain't special"),
+            _ => println!(""),
         };
         node
     }
@@ -63,7 +63,6 @@ impl NodeID {
         res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
         res.push(self.node_type);
         res.append(&mut self.node_value);
-        println!("{:?}", res);
         res
     }
 }
@@ -404,6 +403,30 @@ impl ApplyAction {
         res
     }
 }
+pub struct ActivatePredefinedRule {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub rule: String,
+}
+
+impl ActivatePredefinedRule {
+    pub fn new() -> ActivatePredefinedRule {
+        let mut rule: ActivatePredefinedRule = ActivatePredefinedRule {
+            ie_type: 106,
+            ie_lenght: 0,
+            rule: ("testes".to_string()),
+        };
+        rule.ie_lenght = rule.rule.len() as u16;
+        rule
+    }
+    pub fn to_bytes(self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.rule.into_bytes().to_vec());
+        res
+    }
+}
 //Grouped IES
 //PDI
 pub struct PDI {
@@ -493,6 +516,7 @@ pub struct CreatePDR {
     pub farid: FarId,
     pub urrid: UrrId,
     pub qerid: QerId,
+    pub activaterule: ActivatePredefinedRule,
 }
 
 impl CreatePDR {
@@ -507,15 +531,17 @@ impl CreatePDR {
             farid: FarId::new(1),
             urrid: UrrId::new(1),
             qerid: QerId::new(1),
+            activaterule: ActivatePredefinedRule::new(),
         };
-        pdr.ie_lenght += 28//total ie type and ie lenght lenght
+        pdr.ie_lenght += 32//total ie type and ie lenght lenght
             + pdr.recedence.ie_lenght
             + pdr.pdrid.ie_lenght
             + pdr.pdi.ie_lenght
             + pdr.outerheaderrenoval.ie_lenght
             + pdr.farid.ie_lenght
             + pdr.urrid.ie_lenght
-            + pdr.qerid.ie_lenght;
+            + pdr.qerid.ie_lenght
+            + pdr.activaterule.ie_lenght;
 
         pdr
     }
@@ -531,6 +557,7 @@ impl CreatePDR {
         res.append(&mut self.farid.to_bytes());
         res.append(&mut self.urrid.to_bytes());
         res.append(&mut self.qerid.to_bytes());
+        res.append(&mut self.activaterule.to_bytes());
         res
     }
 }
