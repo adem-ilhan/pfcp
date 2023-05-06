@@ -1,3 +1,5 @@
+use std::vec;
+
 // Recovery Time Stamp
 #[derive(Debug, Default, Clone, Copy)]
 pub struct RecoveryTimestampIE {
@@ -275,6 +277,134 @@ impl F_Teid {
         res
     }
 }
+
+pub struct OuterHeaderRemoval {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub description: u8,
+    pub deletion: u8,
+}
+
+impl OuterHeaderRemoval {
+    pub fn new() -> OuterHeaderRemoval {
+        let mut outerheader: OuterHeaderRemoval = OuterHeaderRemoval {
+            ie_type: 95,
+            ie_lenght: 2,
+            description: 0,
+            deletion: 1,
+        };
+        outerheader
+    }
+
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.push(self.description);
+        res.push(self.deletion);
+        res
+    }
+}
+
+pub struct FarId {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub value: u32,
+}
+
+impl FarId {
+    pub fn new(id: u32) -> FarId {
+        let mut farid: FarId = FarId {
+            ie_type: 108,
+            ie_lenght: 4,
+            value: id,
+        };
+        farid
+    }
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.value.to_be_bytes().to_vec());
+
+        res
+    }
+}
+
+pub struct UrrId {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub value: u32,
+}
+
+impl UrrId {
+    pub fn new(id: u32) -> UrrId {
+        let mut urrid: UrrId = UrrId {
+            ie_type: 81,
+            ie_lenght: 4,
+            value: id,
+        };
+        urrid
+    }
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.value.to_be_bytes().to_vec());
+
+        res
+    }
+}
+
+pub struct QerId {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub value: u32,
+}
+
+impl QerId {
+    pub fn new(id: u32) -> QerId {
+        let mut qerid: QerId = QerId {
+            ie_type: 109,
+            ie_lenght: 4,
+            value: id,
+        };
+        qerid
+    }
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.value.to_be_bytes().to_vec());
+
+        res
+    }
+}
+
+pub struct ApplyAction {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub flags: u16,
+}
+
+impl ApplyAction {
+    pub fn new(flags: u16) -> ApplyAction {
+        let mut action: ApplyAction = ApplyAction {
+            ie_type: 44,
+            ie_lenght: 2,
+            flags: flags,
+        };
+        action
+    }
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.flags.to_be_bytes().to_vec());
+        res
+    }
+}
+//Grouped IES
 //PDI
 pub struct PDI {
     pub ie_type: u16,
@@ -306,12 +436,63 @@ impl PDI {
     }
 }
 
+pub struct DestinationInterfae {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub destination: u8,
+}
+
+impl DestinationInterfae {
+    pub fn new(dst: u8) -> DestinationInterfae {
+        let mut interface: DestinationInterfae = DestinationInterfae {
+            ie_type: 42,
+            ie_lenght: 1,
+            destination: dst,
+        };
+        interface
+    }
+
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.push(self.destination);
+        res
+    }
+}
+pub struct ForwardingParameters {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub destination: DestinationInterfae,
+}
+impl ForwardingParameters {
+    pub fn new() -> ForwardingParameters {
+        let mut fwdparams: ForwardingParameters = ForwardingParameters {
+            ie_type: 4,
+            ie_lenght: 0,
+            destination: DestinationInterfae::new(1),
+        };
+        fwdparams.ie_lenght = 4 + fwdparams.destination.ie_lenght;
+        fwdparams
+    }
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.destination.to_bytes());
+        res
+    }
+}
 pub struct CreatePDR {
     pub ie_type: u16,
     pub ie_lenght: u16,
     pub recedence: Precedence,
     pub pdrid: PdrId,
     pub pdi: PDI,
+    pub outerheaderrenoval: OuterHeaderRemoval,
+    pub farid: FarId,
+    pub urrid: UrrId,
+    pub qerid: QerId,
 }
 
 impl CreatePDR {
@@ -322,11 +503,20 @@ impl CreatePDR {
             recedence: Precedence::new(1),
             pdrid: PdrId::new(1),
             pdi: PDI::new(1),
+            outerheaderrenoval: OuterHeaderRemoval::new(),
+            farid: FarId::new(1),
+            urrid: UrrId::new(1),
+            qerid: QerId::new(1),
         };
-        pdr.ie_lenght += 12 + pdr.recedence.ie_lenght + pdr.pdrid.ie_lenght + pdr.pdi.ie_lenght;
-        println!("lenght pdi;{}", pdr.pdi.ie_lenght);
+        pdr.ie_lenght += 28//total ie type and ie lenght lenght
+            + pdr.recedence.ie_lenght
+            + pdr.pdrid.ie_lenght
+            + pdr.pdi.ie_lenght
+            + pdr.outerheaderrenoval.ie_lenght
+            + pdr.farid.ie_lenght
+            + pdr.urrid.ie_lenght
+            + pdr.qerid.ie_lenght;
 
-        println!("lenght create pdr;{}", pdr.ie_lenght);
         pdr
     }
     pub fn to_bytes(mut self) -> Vec<u8> {
@@ -337,6 +527,43 @@ impl CreatePDR {
         res.append(&mut self.pdrid.to_bytes());
         res.append(&mut self.recedence.to_bytes());
         res.append(&mut self.pdi.to_bytes());
+        res.append(&mut self.outerheaderrenoval.to_bytes());
+        res.append(&mut self.farid.to_bytes());
+        res.append(&mut self.urrid.to_bytes());
+        res.append(&mut self.qerid.to_bytes());
+        res
+    }
+}
+
+pub struct CreateFar {
+    pub ie_type: u16,
+    pub ie_lenght: u16,
+    pub farid: FarId,
+    pub applyaction: ApplyAction,
+    pub forwardingparams: ForwardingParameters,
+}
+
+impl CreateFar {
+    pub fn new() -> CreateFar {
+        let mut far: CreateFar = CreateFar {
+            ie_type: 3,
+            ie_lenght: 0,
+            farid: FarId::new(1),
+            applyaction: ApplyAction::new(65280),
+            forwardingparams: ForwardingParameters::new(),
+        };
+        far.ie_lenght =
+            12 + far.farid.ie_lenght + far.applyaction.ie_lenght + far.forwardingparams.ie_lenght;
+        far
+    }
+
+    pub fn to_bytes(mut self) -> Vec<u8> {
+        let mut res: Vec<u8> = Vec::new();
+        res.append(&mut self.ie_type.to_be_bytes().to_vec());
+        res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
+        res.append(&mut self.farid.to_bytes());
+        res.append(&mut self.applyaction.to_bytes());
+        res.append(&mut self.forwardingparams.to_bytes());
         res
     }
 }
