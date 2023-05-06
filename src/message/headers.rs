@@ -26,7 +26,7 @@ impl Header {
     pub fn set_length(&mut self) {
         self.lenght = 4;
         if !self.seid.is_none() {
-            self.lenght + 8;
+            self.lenght += 8;
         }
     }
 

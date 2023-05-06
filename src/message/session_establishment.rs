@@ -1,4 +1,3 @@
-use crate::elements::CPFunctionFeatures;
 use crate::elements::CreateFar;
 use crate::elements::CreatePDR;
 use crate::elements::F_Seid;
@@ -22,18 +21,17 @@ impl SessionEstablishment {
             far: CreateFar::new(),
         };
         message.header.flag = 33;
-        message.header.lenght += (message.nodeid.ie_lenght
+        message.header.lenght += message.nodeid.ie_lenght
             + 4
             + message.fseid.ie_lenght
             + 4
             + message.pdr.ie_lenght
             + 4
             + message.far.ie_lenght
-            + 4
-            + 8);
+            + 4;
         message
     }
-    pub fn to_bytes(mut self) -> Vec<u8> {
+    pub fn to_bytes(self) -> Vec<u8> {
         let mut res: Vec<u8> = Vec::new();
 
         res.append(&mut self.header.to_bytes());

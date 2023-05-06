@@ -452,7 +452,7 @@ impl DestinationInterfae {
         interface
     }
 
-    pub fn to_bytes(mut self) -> Vec<u8> {
+    pub fn to_bytes(self) -> Vec<u8> {
         let mut res: Vec<u8> = Vec::new();
         res.append(&mut self.ie_type.to_be_bytes().to_vec());
         res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
@@ -475,7 +475,7 @@ impl ForwardingParameters {
         fwdparams.ie_lenght = 4 + fwdparams.destination.ie_lenght;
         fwdparams
     }
-    pub fn to_bytes(mut self) -> Vec<u8> {
+    pub fn to_bytes(self) -> Vec<u8> {
         let mut res: Vec<u8> = Vec::new();
         res.append(&mut self.ie_type.to_be_bytes().to_vec());
         res.append(&mut self.ie_lenght.to_be_bytes().to_vec());
@@ -519,7 +519,7 @@ impl CreatePDR {
 
         pdr
     }
-    pub fn to_bytes(mut self) -> Vec<u8> {
+    pub fn to_bytes(self) -> Vec<u8> {
         let mut res: Vec<u8> = Vec::new();
 
         res.append(&mut self.ie_type.to_be_bytes().to_vec());
@@ -557,7 +557,7 @@ impl CreateFar {
         far
     }
 
-    pub fn to_bytes(mut self) -> Vec<u8> {
+    pub fn to_bytes(self) -> Vec<u8> {
         let mut res: Vec<u8> = Vec::new();
         res.append(&mut self.ie_type.to_be_bytes().to_vec());
         res.append(&mut self.ie_lenght.to_be_bytes().to_vec());

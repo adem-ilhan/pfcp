@@ -1,8 +1,8 @@
 mod message;
+use message::association_setup::AssociationSetup;
 use message::elements::*;
 use message::heartbeat::HeartbeatRequest;
-use message::AssociationSetup::AssociationSetup;
-use message::SessionEstablishment::SessionEstablishment;
+use message::session_establishment::SessionEstablishment;
 use message::*;
 fn main() {
     println!("Hello, world!");
